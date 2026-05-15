@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+reports/*.csv
+reports/*.json
+reports/*.xlsx
+reports/*.png
+.claude/
+logs/*.log
+logs/*.log.*
+state.json

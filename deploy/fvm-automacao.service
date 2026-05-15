@@ -1,0 +1,17 @@
+[Unit]
+Description=Automação FVM — extração e envio de relatórios
+After=network.target
+
+[Service]
+Type=simple
+User=schwarzer
+WorkingDirectory=/home/schwarzer/Desktop/Bau de Utilidades/Automação FVM
+EnvironmentFile=/home/schwarzer/Desktop/Bau de Utilidades/Automação FVM/.env
+ExecStart=/home/schwarzer/Desktop/Bau de Utilidades/Automação FVM/.venv/bin/python main.py
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
