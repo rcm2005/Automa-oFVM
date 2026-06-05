@@ -19,7 +19,7 @@ TELEGRAM_API = f"https://api.telegram.org/bot{config.TELEGRAM_BOT_TOKEN}"
 def send_email(subject: str, body: str, attachment: Path | None = None) -> bool:
     msg = MIMEMultipart()
     msg["From"]    = config.EMAIL_FROM
-    msg["To"]      = config.EMAIL_TO
+    msg["To"]      = ", ".join(config.EMAIL_TO)
     msg["Subject"] = subject
     msg.attach(MIMEText(body, "plain", "utf-8"))
 
@@ -37,7 +37,7 @@ def send_email(subject: str, body: str, attachment: Path | None = None) -> bool:
             server.starttls()
             server.login(config.SMTP_USER, config.SMTP_PASSWORD)
             server.sendmail(config.EMAIL_FROM, config.EMAIL_TO, msg.as_string())
-        logger.info("Email enviado para %s", config.EMAIL_TO)
+        logger.info("Email enviado para %s", ", ".join(config.EMAIL_TO))
         return True
     except Exception:
         logger.exception("Falha ao enviar email")

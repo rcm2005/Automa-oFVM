@@ -1,0 +1,12 @@
+services:
+  fvm:
+    build: .
+    container_name: automacao-fvm
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - ./reports:/app/reports
+      - ./logs:/app/logs
+      - ./state.json:/app/state.json

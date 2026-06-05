@@ -18,7 +18,7 @@ SMTP_PORT = int(os.environ["SMTP_PORT"])
 SMTP_USER = os.environ["SMTP_USER"]
 SMTP_PASSWORD = os.environ["SMTP_PASSWORD"]
 EMAIL_FROM = os.environ["EMAIL_FROM"]
-EMAIL_TO = os.environ["EMAIL_TO"]
+EMAIL_TO = [e.strip() for e in os.environ["EMAIL_TO"].split(",") if e.strip()]
 
 # Telegram
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
