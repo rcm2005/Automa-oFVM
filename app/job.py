@@ -29,20 +29,9 @@ def _save_state(last: date, status: str) -> None:
     )
 
 
-def run_job() -> dict:
-    state = _load_state()
-    today = date.today()
-
-    if state["last_extraction_date"]:
-        start = date.fromisoformat(state["last_extraction_date"]) + timedelta(days=1)
-    else:
-        start = today - timedelta(days=7)
-
-    end = today - timedelta(days=1)
-
+def run_job_for_period(start: date, end: date, mode: str = "manual") -> dict:
     if start > end:
-        logger.info("Nada a extrair: start=%s > end=%s (último=%s)", start, end, state["last_extraction_date"])
-        return {"skipped": True, "reason": "no_new_data"}
+        raise ValueError("Data inicial não pode ser maior que a data final")
 
     logger.info("Iniciando job %s → %s", start, end)
 
@@ -63,11 +52,33 @@ def run_job() -> dict:
     statuses = dlv.deliver(subject, body, attachment=xlsx_path)
     all_ok = all(statuses.values())
 
-    if any(statuses.values()):
-        _save_state(end, "ok" if all_ok else "partial")
+    if all_ok:
+        state_status = "ok" if mode == "scheduled" else "manual_ok"
+    elif any(statuses.values()):
+        state_status = "partial" if mode == "scheduled" else "manual_partial"
     else:
-        _save_state(end, "delivery_failed")
+        state_status = "delivery_failed" if mode == "scheduled" else "manual_delivery_failed"
 
-    result = {"start": start.isoformat(), "end": end.isoformat(), "rows": len(df), **statuses}
+    _save_state(end, state_status)
+
+    result = {"start": start.isoformat(), "end": end.isoformat(), "rows": len(df), "mode": mode, **statuses}
     logger.info("Job concluído: %s", result)
     return result
+
+
+def run_job() -> dict:
+    state = _load_state()
+    today = date.today()
+
+    if state["last_extraction_date"]:
+        start = date.fromisoformat(state["last_extraction_date"]) + timedelta(days=1)
+    else:
+        start = today - timedelta(days=7)
+
+    end = today - timedelta(days=1)
+
+    if start > end:
+        logger.info("Nada a extrair: start=%s > end=%s (último=%s)", start, end, state["last_extraction_date"])
+        return {"skipped": True, "reason": "no_new_data"}
+
+    return run_job_for_period(start, end, mode="scheduled")
